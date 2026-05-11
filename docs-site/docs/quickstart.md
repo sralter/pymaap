@@ -36,7 +36,7 @@ def my_function(x, y):
 - `results_format`: `"csv"` or `"parquet"`
 - `sanitize_func`: Custom sanitizer for sensitive args/logs
 - `log_to_console`: Print logs to console (default `True`)
-- `use_multiprocessing`: Use locks/log queues in multi-process apps
+- `use_multiprocessing`: When `True`, route result rows through PyMAAP’s background writer (safe with `multiprocessing.Pool`). See [README — Multiprocessing](https://github.com/sralter/pymaap#multiprocessing).
 
 This creates:
 - `logs/timing_results.csv` or `.parquet`

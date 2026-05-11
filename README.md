@@ -61,7 +61,40 @@ def my_function(x, y):
 * `results_format`: `"csv"` or `"parquet"`
 * `sanitize_func`: Custom sanitizer for sensitive args/logs
 * `log_to_console`: Print logs to console (default `True`)
-* `use_multiprocessing`: Use locks/log queues in multi-process apps
+* `use_multiprocessing`: When ``True``, route timing/error result rows through a background writer (safe with ``multiprocessing.Pool`` on spawn). No separate init call; decorate in the main process before starting pools. See [Multiprocessing](#multiprocessing).
+
+### Multiprocessing <a name='multiprocessing'></a>
+
+[Back to TOC](#toc)
+
+``Timer(..., use_multiprocessing=True)`` and ``ErrorCatcher(..., use_multiprocessing=True)`` use a **lazy** ``multiprocessing.Manager`` queue and a **single writer thread** in the main process so CSV/Parquet appends stay ordered and spawn-safe.
+
+**You do not call a separate PyMAAP init.** The writer starts automatically the first time such a decorator is constructed in the **main** process (usually at import time). Worker processes receive a **picklable** wrapper that carries the shared queue proxy, so ``pool.map(your_decorated_func, items)`` works on macOS (spawn) and Linux.
+
+**Requirements**
+
+- Build decorated callables in the main process before ``multiprocessing.Pool`` (or ``Process``) workers run—typical for module-level ``@Timer`` / ``@ErrorCatcher``.
+- On Windows, scripts that start a pool should still use ``if __name__ == "__main__":`` for the standard library; that is unrelated to PyMAAP’s lazy writer.
+
+**Example**
+
+```python
+from multiprocessing import Pool
+from pymaap.monitoring import Timer, ErrorCatcher
+
+# Under spawn (macOS default), keep the inner function as a separate top-level
+# symbol so pickling resolves it by name; assign the picklable wrapper explicitly.
+def work_body(x):
+    return x * 2
+
+work = Timer(log_to_console=False, log_to_file=True, results_format="csv", use_multiprocessing=True)(work_body)
+
+if __name__ == "__main__":
+    with Pool(4) as pool:
+        pool.map(work, range(8))
+```
+
+The same pattern applies to ``ErrorCatcher(..., use_multiprocessing=True)``: wrap a top-level ``*_body`` function and pass the returned callable to ``Pool.map``.
 
 #### This creates:
 * `logs/timing_results.csv` or `.parquet`
@@ -123,7 +156,7 @@ figs/
 
 [Back to TOC](#toc)
 
-A Python module for robust execution monitoring, error logging, and benchmarking analysis. This module provides two decorators, summarized below. **Note: these decorators currently do not work for functions using multiprocessing.**
+A Python module for robust execution monitoring, error logging, and benchmarking analysis. This module provides two decorators, summarized below. **``Timer`` / ``ErrorCatcher`` with ``use_multiprocessing=True``** use a background writer so result files stay consistent when you use ``multiprocessing.Pool`` (see [Multiprocessing](#multiprocessing)).
 * [**Timer**](#tp):
   * Logs function execution time, CPU usage, memory usage, and captures function arguments. Performance data is saved to a CSV file and logged in JSON format.
 * [**ErrorCatcher**](#ep):

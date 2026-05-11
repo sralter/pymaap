@@ -34,19 +34,35 @@ def slow_csv(x): time.sleep(x)
 @Timer(log_to_console=False, log_to_file=True, results_format="parquet", use_multiprocessing=False)
 def slow_parquet(x): time.sleep(x)
 
-@Timer(log_to_console=False, log_to_file=True, results_format="csv", use_multiprocessing=True)
-def slow_csv_mp(x): time.sleep(x)
-
-@Timer(log_to_console=False, log_to_file=True, results_format="parquet", use_multiprocessing=True)
-def slow_parquet_mp(x): time.sleep(x)
-
 @ErrorCatcher(log_to_console=False, log_to_file=True, results_format="csv")
 def faulty(): return 1 / 0
 
-@ErrorCatcher(log_to_console=False, log_to_file=True, results_format="csv")
-def faulty_mp(x):
-    # This will raise ZeroDivisionError when x == 0
+
+def _slow_csv_mp_body(x):
+    time.sleep(x)
+
+
+slow_csv_mp = Timer(
+    log_to_console=False, log_to_file=True, results_format="csv", use_multiprocessing=True
+)(_slow_csv_mp_body)
+
+
+def _slow_parquet_mp_body(x):
+    time.sleep(x)
+
+
+slow_parquet_mp = Timer(
+    log_to_console=False, log_to_file=True, results_format="parquet", use_multiprocessing=True
+)(_slow_parquet_mp_body)
+
+
+def _faulty_mp_body(x):
     return 1 / x
+
+
+faulty_mp = ErrorCatcher(
+    log_to_console=False, log_to_file=True, results_format="csv", use_multiprocessing=True
+)(_faulty_mp_body)
 
 # ---- Tests ----
 
@@ -67,27 +83,27 @@ def test_parquet_single():
     assert "Function Name" in df.columns
     assert df["Execution Time (s)"].max() > 0
 
-@pytest.mark.skip(reason="Multiprocessing currently not supported in Timer")
 def test_csv_multiprocessing():
     with multiprocessing.Pool(2) as pool:
         pool.map(slow_csv_mp, [0.5, 0.5])
+    time.sleep(0.4)
     df = pd.read_csv("logs/timing_results.csv")
     assert len(df) >= 2
 
-@pytest.mark.skip(reason="Multiprocessing currently not supported in Timer")
 def test_parquet_multiprocessing():
     with multiprocessing.Pool(2) as pool:
         pool.map(slow_parquet_mp, [0.5, 0.5])
+    time.sleep(0.4)
     df = pd.read_parquet("logs/timing_results.parquet")
     assert len(df) >= 2
 
-@pytest.mark.skip(reason="Multiprocessing currently not supported in Timer")
 def test_error_multiprocessing():
     with multiprocessing.Pool(2) as pool:
         # One succeeds, one raises ZeroDivisionError
         with pytest.raises(ZeroDivisionError):
             pool.map(faulty_mp, [1, 0])  # 1 is fine, 0 triggers division by zero
 
+    time.sleep(0.4)
     df = pd.read_csv("logs/error_results.csv")
     assert len(df) >= 1
     assert "Error Message" in df.columns
