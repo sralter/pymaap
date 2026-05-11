@@ -49,9 +49,28 @@ if [[ "$TARGET" != "1" && "$TARGET" != "2" ]]; then
   error_exit "Invalid target. Must be 1 or 2."
 fi
 
-# Check PyPI credentials
-if [ ! -f ~/.pypirc ]; then
-  error_exit "~/.pypirc not found. Please set up your PyPI credentials."
+# PyPI credentials: ~/.pypirc and/or twine env (e.g. TWINE_PASSWORD for API token)
+if [[ ! -f ~/.pypirc && -z "${TWINE_PASSWORD:-}" ]]; then
+  error_exit "No PyPI credentials found. Configure ~/.pypirc or set TWINE_USERNAME / TWINE_PASSWORD (e.g. token) for twine."
+fi
+
+# --- Changelog on main *before* tag (sdist/wheel match released notes) ---
+CHANGELOG_CHANGED=0
+if command -v git-cliff &> /dev/null && [[ -f .gitcliff.toml ]]; then
+  echo "📝 Generating CHANGELOG.md..."
+  git-cliff -c .gitcliff.toml -o CHANGELOG.md
+  if ! git diff --quiet CHANGELOG.md; then
+    CHANGELOG_CHANGED=1
+  fi
+else
+  echo "⚠️  Skipping changelog: git-cliff not found or .gitcliff.toml missing. Update CHANGELOG.md manually if needed."
+fi
+
+if [[ "$CHANGELOG_CHANGED" -eq 1 ]]; then
+  git add CHANGELOG.md
+  git commit -m "chore: update changelog for $VERSION"
+  git push origin main
+  echo "✅ CHANGELOG.md committed and pushed to main."
 fi
 
 # --- Tag and push ---
@@ -61,9 +80,12 @@ git push origin "$VERSION"
 # --- Clean builds ---
 rm -rf dist/ build/ *.egg-info
 
-# --- Build & Upload the package (from the exact tag) ---
+# --- Build & Upload the package ---
 echo "🔧 Building package..."
 python -m build
+
+echo "🔎 Checking dist with twine..."
+python -m twine check dist/*
 
 if [[ $TARGET == "1" ]]; then
   echo "🚀 Uploading to TestPyPI..."
@@ -76,22 +98,6 @@ else
 fi
 
 echo "✅ Package built & uploaded: $URL"
-
-# --- Generate changelog ---
-if command -v git-cliff &> /dev/null && [ -f .gitcliff.toml ]; then
-  echo "📝 Generating CHANGELOG.md..."
-  git-cliff -c .gitcliff.toml -o CHANGELOG.md
-else
-  echo "⚠️  Skipping changelog: git-cliff not found or config missing."
-fi
-
-# --- Auto-commit CHANGELOG.md ---
-if [ -f CHANGELOG.md ]; then
-  git add CHANGELOG.md
-  git commit -m "chore: update changelog for $VERSION"
-  git push origin main
-  echo "✅ CHANGELOG.md committed and pushed."
-fi
 
 # --- Final success + open URL ---
 echo "✅ Release complete: $VERSION"

@@ -29,4 +29,5 @@ plugins:
 nav:
   - Home: index.md
   - Quickstart: quickstart.md
+  - Releasing: releasing.md
   - API Reference: reference.md
