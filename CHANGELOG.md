@@ -7,6 +7,25 @@ All notable changes to this project will be documented in this file.
 
 
 
+- update changelog for v0.1.15 [93617b1…](https://github.com/sralter/pymaap/commit/93617b108956dfc92ac6d844e2168d5e4c9f5311)
+
+- require Python 3.10+ and adopt uv lockfile [b7d1e6d…](https://github.com/sralter/pymaap/commit/b7d1e6df457d87c8ab71c933ba0d3697d2d8bf32)
+
+
+
+### 📝 Docs
+
+
+
+- add quickstart code example for logger [d341548…](https://github.com/sralter/pymaap/commit/d341548a6039e6f5f4c61b539d108b41f6363e25)
+
+
+
+
+### 🔧 Chores
+
+
+
 - update changelog for v0.1.14 [dfa4b3d…](https://github.com/sralter/pymaap/commit/dfa4b3d3686c5085daf5808501cc9b5e1224b9e5)
 
 
