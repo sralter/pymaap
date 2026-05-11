@@ -15,6 +15,23 @@ import seaborn as sns
 from pymaap.logging_setup import init_general_logger
 logger = init_general_logger(__name__)
 
+
+def parse_log_timestamp(ts: str) -> datetime:
+    """
+    Parse a ``timestamp`` string from JSON log lines.
+
+    Accepts fractional seconds after a comma (default ``logging`` ``asctime`` style,
+    e.g. ``timing.log`` from :class:`~pymaap.monitoring.Timer`) or after a dot
+    (e.g. ``general.json.log`` from :class:`~pymaap.logging_setup.JSONFormatter`).
+    """
+    for fmt in ("%Y-%m-%d %H:%M:%S,%f", "%Y-%m-%d %H:%M:%S.%f"):
+        try:
+            return datetime.strptime(ts, fmt)
+        except ValueError:
+            continue
+    raise ValueError(f"Unrecognized timestamp format: {ts!r}")
+
+
 def load_all_log_lines(logdir: Path):
     """
     Gathers all .log file(s) contents into one object
@@ -50,7 +67,8 @@ def detect_recent_dense_block(log_lines, min_cluster_size=25, gap_seconds=30):
     returns the earliest and latest timestamps of the most recent (i.e., latest in time) valid cluster.
 
     Parameters:
-        log_lines (list): A list of dictionaries, each containing a "timestamp" key formatted as "%Y-%m-%d %H:%M:%S,%f".
+        log_lines (list): A list of dictionaries, each containing a ``timestamp`` string
+        parseable by :func:`parse_log_timestamp` (comma or dot before fractional seconds).
         min_cluster_size (int, optional): Minimum number of timestamps required for a cluster to be considered valid. Default is 25.
         gap_seconds (float, optional): Maximum allowed gap in seconds between consecutive timestamps in a cluster. Default is 30.
 
@@ -60,10 +78,7 @@ def detect_recent_dense_block(log_lines, min_cluster_size=25, gap_seconds=30):
             - end_time (datetime): The latest timestamp in the most recent valid cluster.
             If no valid cluster is found, returns (None, None).
     """
-    timestamps = sorted([
-        datetime.strptime(line["timestamp"], "%Y-%m-%d %H:%M:%S,%f")
-        for line in log_lines
-    ])
+    timestamps = sorted([parse_log_timestamp(line["timestamp"]) for line in log_lines])
 
     if not timestamps:
         return None, None
@@ -102,7 +117,7 @@ def parse_log_lines(log_lines, start_time=None, end_time=None):
         retained after the time filter.
     """
     def in_window(line):
-        ts = datetime.strptime(line["timestamp"], "%Y-%m-%d %H:%M:%S,%f")
+        ts = parse_log_timestamp(line["timestamp"])
         if start_time is not None and ts < start_time:
             return False
         if end_time is not None and ts > end_time:
@@ -133,7 +148,7 @@ def parse_log_lines(log_lines, start_time=None, end_time=None):
                 "mem_percent": float(d["mem"]),
                 "threads": int(d["threads"]),
                 "fds": int(d["fds"]),
-                "timestamp": datetime.strptime(line["timestamp"], "%Y-%m-%d %H:%M:%S,%f")
+                "timestamp": parse_log_timestamp(line["timestamp"])
             }
             if d["duration"]:
                 parsed["duration"] = float(d["duration"])

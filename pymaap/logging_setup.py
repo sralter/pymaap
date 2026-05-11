@@ -22,7 +22,10 @@ class UUIDFilter(logging.Filter):
 class JSONFormatter(logging.Formatter):
     """
     Formats LogRecords as JSON objects, one per line,
-    with full microsecond precision in the timestamp.
+    with millisecond precision in the timestamp (dot before fractional seconds).
+
+    For log analysis, use the same timestamp convention as ``parse_log_timestamp`` in
+    ``pymaap.analysis`` (that helper also accepts comma-separated fractional seconds).
     Fields: timestamp, level, message, function, uuid
     """
     def formatTime(self, record, datefmt: Optional[str] = None) -> str:

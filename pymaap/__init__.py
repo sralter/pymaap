@@ -1,6 +1,6 @@
 from .logging_setup import init_general_logger
 from .monitoring import Timer, ErrorCatcher, get_metrics_start, get_metrics_end
-from .analysis import generate_plots, parse_log_lines, detect_recent_dense_block
+from .analysis import generate_plots, parse_log_lines, detect_recent_dense_block, parse_log_timestamp
 
 from importlib.metadata import version
 
@@ -15,4 +15,5 @@ __all__ = [
     "generate_plots",
     "parse_log_lines",
     "detect_recent_dense_block",
+    "parse_log_timestamp",
 ]

@@ -56,6 +56,8 @@ def test_csv_single():
     assert not df.empty
     assert (df["Execution Time (s)"] > 0).all()
     assert "Function Name" in df.columns
+    assert "Process ID" in df.columns
+    assert "Thread Count" in df.columns
     assert df["Function Name"].str.contains("slow_csv").any()
 
 def test_parquet_single():

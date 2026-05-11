@@ -19,6 +19,21 @@ from pymaap.logging_backend import get_log_queue, log_event
 from pymaap.logging_setup import init_general_logger
 logger = init_general_logger(__name__)
 
+# Columns for Timer CSV/Parquet (seed file + every append must match).
+_TIMER_RESULT_COLUMNS = (
+    "Timestamp",
+    "Process ID",
+    "Thread Count",
+    "UUID",
+    "Function Name",
+    "Execution Time (s)",
+    "CPU Time (sec)",
+    "Memory Change (MB)",
+    "Final Memory Usage (MB)",
+    "Arguments",
+    "Log Message",
+)
+
 # --- Helpers ---
 
 def sanitizer(arg_str):
@@ -98,8 +113,7 @@ class Timer:
             try:
                 with open(self.RESULTS_FILE, mode="x", newline="") as file:  # 'x' mode prevents overwriting
                     writer = csv.writer(file)
-                    writer.writerow(["Timestamp", "UUID", "Function Name", "Execution Time (s)", 
-                                    "CPU Time (sec)", "Memory Change (MB)", "Final Memory Usage (MB)", "Arguments", "Log Message"])
+                    writer.writerow(list(_TIMER_RESULT_COLUMNS))
                     logger.info(f"Created fresh {self.RESULTS_FILE}")
             except FileExistsError:
                 pass  # Another process has already created the file
@@ -108,8 +122,7 @@ class Timer:
         elif self.results_format == "parquet":
             if not os.path.exists(self.RESULTS_FILE):  # Avoid unnecessary reads
                 try:
-                    df_empty = pd.DataFrame(columns=["Timestamp", "UUID", "Function Name", "Execution Time (s)", 
-                                                    "CPU Time (sec)", "Memory Change (MB)", "Final Memory Usage (MB)", "Arguments", "Log Message"])
+                    df_empty = pd.DataFrame(columns=list(_TIMER_RESULT_COLUMNS))
                     df_empty.to_parquet(self.RESULTS_FILE, index=False)
                     logger.info(f"Created fresh {self.RESULTS_FILE}")
                 except FileExistsError:
@@ -184,12 +197,7 @@ class Timer:
 
     def _write_csv(self, row):
         """Write a row to the CSV file safely using pandas for consistent headers."""
-        columns = [
-            "Timestamp", "Process ID", "Thread Count", "UUID", "Function Name",
-            "Execution Time (s)", "CPU Time (sec)", "Memory Change (MB)",
-            "Final Memory Usage (MB)", "Arguments", "Log Message"
-        ]
-        df = pd.DataFrame([row], columns=columns)
+        df = pd.DataFrame([row], columns=list(_TIMER_RESULT_COLUMNS))
         header = not os.path.exists(self.RESULTS_FILE) or os.path.getsize(self.RESULTS_FILE) == 0
         df.to_csv(self.RESULTS_FILE, mode="a", header=header, index=False)
 

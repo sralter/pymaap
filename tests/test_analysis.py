@@ -5,7 +5,7 @@ from pathlib import Path
 from unittest import mock
 import pytest
 from datetime import datetime, timedelta
-from pymaap.analysis import detect_recent_dense_block, parse_log_lines, generate_plots
+from pymaap.analysis import detect_recent_dense_block, parse_log_lines, generate_plots, parse_log_timestamp
 
 # Helper to generate fake log lines
 def fake_log(ts, message):
@@ -46,6 +46,44 @@ def test_parse_log_lines_unbounded_window_includes_all(dense_cluster_logs):
     df, lines = parse_log_lines(dense_cluster_logs, None, None)
     assert len(lines) == len(dense_cluster_logs)
     assert not df.empty
+
+
+def test_parse_log_timestamp_accepts_comma_and_dot_fraction():
+    a = parse_log_timestamp("2025-06-01 12:00:00,123456")
+    b = parse_log_timestamp("2025-06-01 12:00:00.123456")
+    assert a == b
+    # millisecond-style (still valid %f in Python 3.10+)
+    c = parse_log_timestamp("2025-06-01 12:00:00.123")
+    assert c.year == 2025 and c.month == 6 and c.microsecond == 123000
+
+
+def test_parse_log_timestamp_rejects_garbage():
+    with pytest.raises(ValueError, match="Unrecognized timestamp"):
+        parse_log_timestamp("not-a-timestamp")
+
+
+def test_detect_recent_dense_block_with_dot_timestamps():
+    """Timestamps with a dot before fractional seconds (general JSON logs) must cluster correctly."""
+    now = datetime(2025, 6, 1, 12, 0, 0)
+    logs = []
+    for i in range(30):
+        ts = now + timedelta(seconds=i)
+        dot = ts.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+        logs.append({
+            "timestamp": dot,
+            "message": "func: start: wall=1.0 perf=1.0 id=x cpu=1.0% rss=1 vms=1 mem%=1.0 threads=1 fds=1",
+        })
+    for i in range(30):
+        ts = now + timedelta(seconds=i)
+        dot = ts.strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+        logs.append({
+            "timestamp": dot,
+            "message": "func: end: wall=2.0 perf=2.0 id=x duration=1.0sec cpu=2.0% rss=1 vms=1 mem%=1.0 threads=1 fds=1",
+        })
+    start, end = detect_recent_dense_block(logs)
+    assert start is not None and end is not None
+    assert (end - start).total_seconds() > 25
+
 
 @pytest.fixture
 def sample_df():
