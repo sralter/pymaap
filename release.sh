@@ -102,7 +102,9 @@ project_python -m twine check dist/*
 
 if [[ $TARGET == "1" ]]; then
   echo "🚀 Uploading to TestPyPI..."
-  project_python -m twine upload --repository testpypi dist/*
+  # Named repo --repository testpypi requires a [testpypi] block in ~/.pypirc;
+  # explicit URL works with TWINE_* or any credentials twine accepts for this host.
+  project_python -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*
   URL="https://test.pypi.org/project/pymaap/"
 else
   echo "🚀 Uploading to PyPI..."

@@ -9,8 +9,9 @@ This document describes how to ship a **tagged** release with an up-to-date **CH
 - **CI green** on the commit you intend to release ([GitHub Actions](https://github.com/sralter/pymaap/actions)).
 - **Tools:** `git`, `git-cliff` (for `CHANGELOG.md`), and either **`uv`** (recommended) or a system **`python3`** with `pytest`, `build`, `twine`, and **`setuptools-scm`** installed for release commands.
 - **PyPI credentials** — either:
-  - `~/.pypirc` with `[pypi]` / `[testpypi]` sections, or
-  - **API tokens:** set `TWINE_USERNAME=__token__` and `TWINE_PASSWORD=<pypi token>` (and similarly for TestPyPI). `release.sh` allows upload if `~/.pypirc` exists **or** `TWINE_PASSWORD` is set.
+  - `~/.pypirc` with a **`[pypi]`** section for production uploads, or
+  - **API tokens:** set `TWINE_USERNAME=__token__` and `TWINE_PASSWORD=<token>` when you run the script. `release.sh` allows starting a release if `~/.pypirc` exists **or** `TWINE_PASSWORD` is set.
+- **TestPyPI** uses a **separate** token from PyPI. `./release.sh` uploads to TestPyPI with **`twine --repository-url https://test.pypi.org/legacy/`** (so you do **not** need a `[testpypi]` section in `~/.pypirc`). Export a [TestPyPI API token](https://test.pypi.org/manage/account/token/) in `TWINE_PASSWORD` (and `TWINE_USERNAME=__token__`) when you choose option **1**, or add a dedicated `[testpypi]` section if you prefer named repositories.
 
 ## Versioning (`setuptools_scm`)
 
@@ -70,8 +71,10 @@ rm -rf dist/ build/ *.egg-info
 uv run --extra dev python -m build
 uv run --extra dev python -m twine check dist/*
 
-# 5. Upload (TestPyPI or PyPI)
-uv run --extra dev python -m twine upload --repository testpypi dist/*   # or: ... twine upload dist/*
+# 5. Upload (TestPyPI: explicit URL avoids needing [testpypi] in ~/.pypirc)
+uv run --extra dev python -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+#    PyPI:
+# uv run --extra dev python -m twine upload dist/*
 ```
 
 ## `release.sh` behavior summary
@@ -80,6 +83,7 @@ uv run --extra dev python -m twine upload --repository testpypi dist/*   # or: .
 - Uses **`setuptools_scm`** to suggest a default **tag**; you may override it at the prompt.
 - Refuses to create a tag that **already exists**.
 - Runs **`git-cliff`** (if installed), **commits** `CHANGELOG.md` when it changed, **pushes `main`**, then **tags** and **pushes the tag**, then **`build` / `twine`** via **`uv run --extra dev python -m …`** when `uv` is available, otherwise **`python3`** (or **`python`**).
+- **TestPyPI** uploads use **`--repository-url https://test.pypi.org/legacy/`** (not `--repository testpypi`), so a `[testpypi]` stanza in `~/.pypirc` is optional.
 - If **`git-cliff`** is missing, it skips changelog generation (you should run it manually before release).
 
 ## Notes
