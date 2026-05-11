@@ -17,6 +17,8 @@ All notable changes to this project will be documented in this file.
 
 - update changelog [140f940…](https://github.com/sralter/pymaap/commit/140f94010f8c8751f1d0f94cd761e29cb207d6d4)
 
+- update changelog for 0.2.0 [95b5ace…](https://github.com/sralter/pymaap/commit/95b5ace3b80ca3974000e7c3518f67397a59690f)
+
 
 
 ### 📝 Docs
@@ -28,6 +30,8 @@ All notable changes to this project will be documented in this file.
 - add tutorial scripts for single-process and multiprocessing usage [bf4bcd4…](https://github.com/sralter/pymaap/commit/bf4bcd4f92da3e86465323616eb6aaf6913600c0)
 
 - add PyPI release guide and reorder release.sh [fa5e2c6…](https://github.com/sralter/pymaap/commit/fa5e2c6a3f7c0fe56ef300277f24b46c6f83625b)
+
+- clarify .dev versions and suggest clean tag default [c530372…](https://github.com/sralter/pymaap/commit/c5303720df104c576e35967b07e8f649c2997b15)
 
 
 
@@ -46,6 +50,8 @@ All notable changes to this project will be documented in this file.
 - align Timer results schema and log timestamp parsing [ca53de1…](https://github.com/sralter/pymaap/commit/ca53de1436041e853d4840f0e28e9a0191dd1f54)
 
 - use uv project Python when uv is available [c627c62…](https://github.com/sralter/pymaap/commit/c627c62d732f7e7a31a26b0d7f0e392e820330d9)
+
+- TestPyPI upload without [testpypi] in .pypirc [407eab7…](https://github.com/sralter/pymaap/commit/407eab7dbdbde0e32b86b9c69b9ca0c79e3372f4)
 
 
 
