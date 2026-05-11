@@ -11,6 +11,8 @@ All notable changes to this project will be documented in this file.
 
 - require Python 3.10+ and adopt uv lockfile [b7d1e6d…](https://github.com/sralter/pymaap/commit/b7d1e6df457d87c8ab71c933ba0d3697d2d8bf32)
 
+- update changelog [9029d7e…](https://github.com/sralter/pymaap/commit/9029d7e299162487f9de884a5cf8a05d9e757156)
+
 
 
 ### 📝 Docs
@@ -18,6 +20,14 @@ All notable changes to this project will be documented in this file.
 
 
 - add quickstart code example for logger [d341548…](https://github.com/sralter/pymaap/commit/d341548a6039e6f5f4c61b539d108b41f6363e25)
+
+
+
+### 🩹 Fixes
+
+
+
+- align Timer results schema and log timestamp parsing [ca53de1…](https://github.com/sralter/pymaap/commit/ca53de1436041e853d4840f0e28e9a0191dd1f54)
 
 
 
