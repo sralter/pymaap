@@ -15,6 +15,8 @@ All notable changes to this project will be documented in this file.
 
 - update changelog [d042bdd…](https://github.com/sralter/pymaap/commit/d042bdd9dfb37c9e4ec33b791790e5bd8b083119)
 
+- update changelog [140f940…](https://github.com/sralter/pymaap/commit/140f94010f8c8751f1d0f94cd761e29cb207d6d4)
+
 
 
 ### 📝 Docs
@@ -22,6 +24,10 @@ All notable changes to this project will be documented in this file.
 
 
 - add quickstart code example for logger [d341548…](https://github.com/sralter/pymaap/commit/d341548a6039e6f5f4c61b539d108b41f6363e25)
+
+- add tutorial scripts for single-process and multiprocessing usage [bf4bcd4…](https://github.com/sralter/pymaap/commit/bf4bcd4f92da3e86465323616eb6aaf6913600c0)
+
+- add PyPI release guide and reorder release.sh [fa5e2c6…](https://github.com/sralter/pymaap/commit/fa5e2c6a3f7c0fe56ef300277f24b46c6f83625b)
 
 
 
@@ -38,6 +44,8 @@ All notable changes to this project will be documented in this file.
 
 
 - align Timer results schema and log timestamp parsing [ca53de1…](https://github.com/sralter/pymaap/commit/ca53de1436041e853d4840f0e28e9a0191dd1f54)
+
+- use uv project Python when uv is available [c627c62…](https://github.com/sralter/pymaap/commit/c627c62d732f7e7a31a26b0d7f0e392e820330d9)
 
 
 
