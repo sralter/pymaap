@@ -13,6 +13,8 @@ All notable changes to this project will be documented in this file.
 
 - update changelog [9029d7e…](https://github.com/sralter/pymaap/commit/9029d7e299162487f9de884a5cf8a05d9e757156)
 
+- update changelog [d042bdd…](https://github.com/sralter/pymaap/commit/d042bdd9dfb37c9e4ec33b791790e5bd8b083119)
+
 
 
 ### 📝 Docs
@@ -20,6 +22,14 @@ All notable changes to this project will be documented in this file.
 
 
 - add quickstart code example for logger [d341548…](https://github.com/sralter/pymaap/commit/d341548a6039e6f5f4c61b539d108b41f6363e25)
+
+
+
+### ✨ Features
+
+
+
+- multiprocessing-safe Timer and ErrorCatcher via writer queue [f6c4f34…](https://github.com/sralter/pymaap/commit/f6c4f34daf87b1d8a1b5c65f9a51cfcff05c29b3)
 
 
 
