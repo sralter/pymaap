@@ -16,7 +16,9 @@ This document describes how to ship a **tagged** release with an up-to-date **CH
 ## Versioning (`setuptools_scm`)
 
 - The **distribution version** is computed from **git tags** matching `v[0-9]*` (see `[tool.setuptools_scm]` in `pyproject.toml` and `tag_pattern` in `.gitcliff.toml`).
-- Choose a tag that reflects **semver** for your changes (e.g. `v0.2.0` after breaking changes such as raising `requires-python` or multiprocessing behavior).
+- With **`version_scheme = "post-release"`**, commits *after* tag `v0.2.0` produce a **development string** like `0.2.1.dev1+gabc1234`. That is **not** “0.2.1 is already on PyPI”; it means “work toward the **next** patch release **0.2.1**.” For a new release, create the next semver tag (e.g. **`v0.2.1`**) — not `0.2.10` unless you have already shipped `0.2.1` … `0.2.9`. `./release.sh` suggests a clean `vX.Y.Z` default when it sees a `.dev…` version string.
+- **Reusing a tag:** if `0.2.0` (or `v0.2.0`) already exists on the remote, `./release.sh` will **refuse** it. Do not delete and retag a published tag; bump the version (e.g. `v0.2.1`) instead.
+- Choose a tag that reflects **semver** for your changes (e.g. `v0.3.0` for a minor bump, `v0.2.1` for a patch after `v0.2.0`).
 - Sanity-check the version Python would use **before** tagging (use the project dev environment so `setuptools_scm` resolves):
 
   ```bash

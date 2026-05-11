@@ -45,10 +45,20 @@ fi
 # Get version from setuptools_scm (same interpreter as tests when using uv)
 AUTO_VERSION=$(project_python -c "import setuptools_scm; print(setuptools_scm.get_version())") \
   || error_exit "Could not determine version from setuptools_scm."
-DEFAULT_TAG="v$AUTO_VERSION"
+
+# setuptools_scm + post-release often reports e.g. 0.2.1.dev3+gabc — that is not a git tag;
+# the next release tag is the X.Y.Z before ".dev" (see docs/releasing.md).
+if [[ "$AUTO_VERSION" =~ ^([0-9]+(\.[0-9]+)+)\.dev[0-9]+ ]]; then
+  DEFAULT_TAG="v${BASH_REMATCH[1]}"
+elif [[ "$AUTO_VERSION" =~ ^[0-9]+(\.[0-9]+)+$ ]]; then
+  DEFAULT_TAG="v$AUTO_VERSION"
+else
+  DEFAULT_TAG="v$AUTO_VERSION"
+fi
 
 # Confirm or override version tag
-read -p "Enter version tag to release [default: $DEFAULT_TAG]: " VERSION
+echo "setuptools_scm reports version string: $AUTO_VERSION"
+read -p "Enter git tag to create [default: $DEFAULT_TAG]: " VERSION
 VERSION="${VERSION:-$DEFAULT_TAG}"
 
 # Check if tag exists
