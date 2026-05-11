@@ -14,6 +14,19 @@ function pause {
   echo "$REPLY"
 }
 
+# Python for setuptools-scm, build, twine: use project venv via uv when available.
+function project_python {
+  if command -v uv &> /dev/null; then
+    uv run --extra dev python "$@"
+  elif command -v python3 &> /dev/null; then
+    python3 "$@"
+  elif command -v python &> /dev/null; then
+    python "$@"
+  else
+    error_exit "No usable Python (install uv or python3/python on PATH)."
+  fi
+}
+
 # --- Pre-checks ---
 
 # Ensure working directory is clean
@@ -29,8 +42,8 @@ else
   pytest -v || error_exit "Tests failed. Aborting release."
 fi
 
-# Get version from setuptools_scm
-AUTO_VERSION=$(python -c "import setuptools_scm; print(setuptools_scm.get_version())") \
+# Get version from setuptools_scm (same interpreter as tests when using uv)
+AUTO_VERSION=$(project_python -c "import setuptools_scm; print(setuptools_scm.get_version())") \
   || error_exit "Could not determine version from setuptools_scm."
 DEFAULT_TAG="v$AUTO_VERSION"
 
@@ -82,18 +95,18 @@ rm -rf dist/ build/ *.egg-info
 
 # --- Build & Upload the package ---
 echo "🔧 Building package..."
-python -m build
+project_python -m build
 
 echo "🔎 Checking dist with twine..."
-python -m twine check dist/*
+project_python -m twine check dist/*
 
 if [[ $TARGET == "1" ]]; then
   echo "🚀 Uploading to TestPyPI..."
-  python -m twine upload --repository testpypi dist/*
+  project_python -m twine upload --repository testpypi dist/*
   URL="https://test.pypi.org/project/pymaap/"
 else
   echo "🚀 Uploading to PyPI..."
-  python -m twine upload dist/*
+  project_python -m twine upload dist/*
   URL="https://pypi.org/project/pymaap/"
 fi
 
