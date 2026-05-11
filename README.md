@@ -29,6 +29,8 @@ uv run pytest
 
 The repo includes `uv.lock` so CI and contributors resolve the same dependency versions.
 
+Runnable **tutorial** scripts (single-process, multiprocessing pool, and both in one program) are in the [`tutorial/`](tutorial/) directory; run them from the repo root, e.g. ``uv run python tutorial/01_single_process.py``.
+
 ### Monitoring Functions
 
 Import the decorators and wrap your functions:
