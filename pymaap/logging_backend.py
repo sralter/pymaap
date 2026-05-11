@@ -39,7 +39,8 @@ def _writer_worker(queue, log_file):
 def init_multiprocessing_logging(log_file="logs/timing.log"):
     global _log_queue, _writer_process, _log_file_path
 
-    os.makedirs(os.path.dirname(log_file), exist_ok=True)
+    log_dir = os.path.dirname(log_file) or "."
+    os.makedirs(log_dir, exist_ok=True)
     _log_queue = multiprocessing.Queue()
     _log_file_path = log_file
     _writer_process = multiprocessing.Process(target=_writer_worker, args=(_log_queue, log_file))

@@ -22,20 +22,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+
+      - name: Set up Python ${{ matrix.python-version }}
+        run: uv python install ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-          pip install pytest pytest-cov pytest-html
-          pip install -e .[dev]
+        run: uv sync --all-extras --python ${{ matrix.python-version }}
 
       - name: Run tests with HTML + terminal coverage
         run: |
-          pytest -v --cov=pymaap --cov-report=term --cov-report=html --html=pytest-report.html
+          uv run pytest -v --cov=pymaap --cov-report=term --cov-report=html --html=pytest-report.html
 
       # - name: Upload pytest HTML report
       #   if: always()

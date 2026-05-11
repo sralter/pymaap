@@ -178,6 +178,7 @@ logs/
 .venv
 archive/
 .ipynb
+*.code-workspace
 
 htmlcov/
 pytest-report.html

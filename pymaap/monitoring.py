@@ -52,7 +52,7 @@ class Timer:
     results are stored in a Parquet file, appending a new row for each call.
     """
     def __init__(self, log_to_console=True, log_to_file=True, backup_count=5,
-                 max_bytes=10*1024*1024,track_resources=True, max_arg_length=None, 
+                 max_bytes=10*1024*1024, track_resources=True, max_arg_length=None, 
                  sanitize_func=None, results_format="csv", use_multiprocessing=False):
         self.log_to_console = log_to_console
         self.log_to_file = log_to_file

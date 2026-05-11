@@ -40,6 +40,13 @@ def test_parse_log_lines_creates_dataframe(dense_cluster_logs):
     assert "Perf Duration (s)" in df.columns
     assert df.iloc[0]["Function"] == "func"
 
+
+def test_parse_log_lines_unbounded_window_includes_all(dense_cluster_logs):
+    """start_time/end_time None must not compare against None (regression)."""
+    df, lines = parse_log_lines(dense_cluster_logs, None, None)
+    assert len(lines) == len(dense_cluster_logs)
+    assert not df.empty
+
 @pytest.fixture
 def sample_df():
     return pd.DataFrame({

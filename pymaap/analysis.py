@@ -88,22 +88,28 @@ def detect_recent_dense_block(log_lines, min_cluster_size=25, gap_seconds=30):
     return min(most_recent), max(most_recent)
 
 
-def parse_log_lines(log_lines, start_time=None, end_time=None) -> pd.DataFrame:
+def parse_log_lines(log_lines, start_time=None, end_time=None):
     """
     Parses log lines to identify the performance metrics of the function.
 
     Args:
         log_lines: Object containing all the log lines.
-        start_time (optional): Start time of the run. Defaults to None.
-        end_time (optional): End time of the run. Defaults to None.
+        start_time (optional): Start time of the run. If None, no lower bound is applied.
+        end_time (optional): End time of the run. If None, no upper bound is applied.
 
     Returns:
-        pd.DataFrame: Compiled pd.DataFrame 
+        tuple: ``(pd.DataFrame, filtered_lines)`` — parsed metrics and the log lines
+        retained after the time filter.
     """
-    filtered_lines = [
-        line for line in log_lines
-        if start_time <= datetime.strptime(line["timestamp"], "%Y-%m-%d %H:%M:%S,%f") <= end_time
-    ]
+    def in_window(line):
+        ts = datetime.strptime(line["timestamp"], "%Y-%m-%d %H:%M:%S,%f")
+        if start_time is not None and ts < start_time:
+            return False
+        if end_time is not None and ts > end_time:
+            return False
+        return True
+
+    filtered_lines = [line for line in log_lines if in_window(line)]
 
     pattern = re.compile(
         r"(?P<func>[^\s:]+): (?P<type>start|end): wall=(?P<wall>[\d.]+) perf=(?P<perf>[\d.]+) id=(?P<id>[\w-]+)"
@@ -341,7 +347,7 @@ def analysis(args=None):
 
     generate_plots(df, output_dir, subtitle)
     write_metadata(output_dir, start_time, end_time, subtitle, sorted(logdir.glob("timing.log*")))
-    logger.info("Analysis complete. Results written to:", output_dir)
+    logger.info("Analysis complete. Results written to: %s", output_dir)
 
 if __name__ == "__main__":
     analysis()

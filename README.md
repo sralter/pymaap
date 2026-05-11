@@ -20,6 +20,15 @@ PyMAAP helps you monitor, log, and analyze the performance and behavior of your 
 uv pip install pymaap
 ```
 
+To work on PyMAAP locally, clone the repo and install locked dev dependencies:
+
+```bash
+uv sync --all-extras
+uv run pytest
+```
+
+The repo includes `uv.lock` so CI and contributors resolve the same dependency versions.
+
 ### Monitoring Functions
 
 Import the decorators and wrap your functions:

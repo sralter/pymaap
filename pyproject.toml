@@ -7,12 +7,12 @@ name = "pymaap"
 dynamic = ["version"]
 description = "PyMAAP: Python Monitoring and Analysis Package"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 authors = [{ name = "Samuel Alter", email = "s.r.alter@icloud.com"}]
 license = "MIT"
 dependencies = [
   "geopandas>=1.0.0",
-  "pandas>2.0",
+  "pandas>=2.0",
   "psutil>=7.0.0",
   "pyarrow>=19.0",
   "matplotlib>=3.10",
@@ -21,17 +21,14 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-  "pytest", 
-  "pytest-cov", 
-  "pytest-html", 
-  "sphinx", 
-  "twine", 
-  "build", 
-  "pandas", 
-  "matplotlib", 
-  "seaborn", 
-  "setuptools-scm", 
-  "git-cliff"
+  "pytest",
+  "pytest-cov",
+  "pytest-html",
+  "sphinx",
+  "twine",
+  "build",
+  "setuptools-scm",
+  "git-cliff",
 ]
 
 [tool.setuptools.packages.find]

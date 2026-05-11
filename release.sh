@@ -23,7 +23,11 @@ fi
 
 # Run tests
 echo "🔍 Running test suite..."
-pytest -v || error_exit "Tests failed. Aborting release."
+if command -v uv &> /dev/null; then
+  uv run --extra dev pytest -v || error_exit "Tests failed. Aborting release."
+else
+  pytest -v || error_exit "Tests failed. Aborting release."
+fi
 
 # Get version from setuptools_scm
 AUTO_VERSION=$(python -c "import setuptools_scm; print(setuptools_scm.get_version())") \

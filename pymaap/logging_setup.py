@@ -1,6 +1,5 @@
 # pymaap/logging_setup.py
 
-import datetime
 import logging
 import uuid
 import json
@@ -10,6 +9,7 @@ from logging import StreamHandler
 from typing import Optional
 import types
 from datetime import datetime
+
 
 class UUIDFilter(logging.Filter):
     """
